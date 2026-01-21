@@ -1,0 +1,6 @@
+LangChain is an open-source framework designed to simplify the development of applications powered by large language models (LLMs).
+It provides tools for chaining together various components, such as prompt templates, LLMs, and document retrievers.
+LangChain supports many use cases, including chatbots, document analysis, and autonomous agents.
+It offers standard interfaces for memory (keeping track of conversation history) and tools (allowing agents to interact with the outside world).
+LangChain integrates with many vector stores like FAISS, Pinecone, and Chroma for RAG applications.
+The framework is available in both Python and JavaScript/TypeScript.
