@@ -1,0 +1,6 @@
+Retrieval-Augmented Generation (RAG) is a technique for enhancing the accuracy and reliability of generative AI models with facts fetched from external sources.
+In a RAG system, the user's query is first used to retrieve relevant documents or data chunks from a knowledge base (often a vector database).
+This retrieved context is then passed alongside the original query to the Large Language Model (LLM).
+The LLM uses this context to generate a response that is grounded in the specific data provided, reducing hallucinations.
+RAG allows LLMs to answer questions about private data or recent events that were not in their training set.
+It bridges the gap between the vast but static knowledge of a pre-trained model and the dynamic, proprietary knowledge of an organization.
