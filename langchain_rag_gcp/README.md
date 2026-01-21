@@ -59,12 +59,35 @@ langchain_rag_gcp/
          -d '{"query": "What is RAG?"}'
     ```
 
-## Architecture Layers
+## Service Simulation Breakdown
 
--   **Storage**: Simulates Google Cloud Storage using a local `data/raw` directory.
--   **Embeddings**: Uses `FakeEmbeddings` (LangChain) to simulate Vertex AI Embeddings.
--   **Vector Search**: Uses `FAISS` to simulate Vertex AI Vector Search.
--   **LLM**: Uses `FakeListChatModel` (LangChain) to simulate Gemini, returning mock responses.
+This project simulates the following GCP services to allow for offline development:
+
+| GCP Service | Simulated By | Role in Project |
+| :--- | :--- | :--- |
+| **Cloud Storage (GCS)** | `LocalStorageService` | **Data Lake**: Acts as the initial landing zone for raw documents (e.g., PDFs, text files) before they are processed. |
+| **Vertex AI Embeddings** | `LocalEmbeddingService` | **Vectorization**: Converts text chunks into numerical vectors (embeddings) so they can be compared mathematically. |
+| **Vertex AI Vector Search** | `LocalVectorStoreService` | **Retrieval Engine**: Stores the generated vectors and performs similarity searches to find the most relevant document chunks for a user query. |
+| **Vertex AI (Gemini)** | `LocalGenAIService` | **Reasoning Engine**: The LLM that takes the user's question and the retrieved context to generate a natural language answer. |
+
+## RAG Workflow
+
+The system operates in two distinct pipelines:
+
+### 1. Ingestion Pipeline (Offline)
+*Goal: Prepare the knowledge base.*
+1.  **Load**: Scans the "Cloud Storage" bucket (`data/raw/`) for new files.
+2.  **Split**: Reads file content and splits it into smaller chunks (e.g., 1000 chars).
+3.  **Embed**: Converts each text chunk into a vector representation using the Embedding Service.
+4.  **Store**: Saves vectors and metadata into the "Vector Search" index (`data/vector_index/`).
+
+### 2. Serving Pipeline (Online)
+*Goal: Answer user questions.*
+1.  **Receive Query**: API receives a user question (e.g., "What is RAG?").
+2.  **Embed Query**: Converts the question into a vector.
+3.  **Retrieve**: Finds the top $k$ most similar document chunks from the Vector Search index.
+4.  **Augment**: Constructs a prompt containing the user's question and the retrieved context.
+5.  **Generate**: Sends the prompt to the LLM to generate a grounded answer.
 
 ## Testing
 
