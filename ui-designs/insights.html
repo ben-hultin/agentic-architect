@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Insights — Agent Ops</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0F19;
+    --surface:#161224;
+    --surface-2:#1C1830;
+    --border:#2A2440;
+    --cyan:#00F0FF;
+    --magenta:#BD00FF;
+    --text-hi:#FFFFFF;
+    --text-body:#94A3B8;
+    --text-dim:#5C6478;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+
+  body{
+    background:
+      radial-gradient(1200px 600px at 85% -10%, rgba(189,0,255,0.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 20%, rgba(0,240,255,0.07), transparent 55%),
+      var(--bg);
+    color:var(--text-body);
+    font-family:'Inter', sans-serif;
+    min-height:100vh;
+    display:flex;
+  }
+
+  a{color:inherit; text-decoration:none;}
+  button, select{font-family:inherit; cursor:pointer;}
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    width:232px;
+    flex-shrink:0;
+    background:var(--surface);
+    border-right:1px solid var(--border);
+    display:flex;
+    flex-direction:column;
+    padding:28px 20px;
+    position:sticky;
+    top:0;
+    height:100vh;
+  }
+
+  .logo{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:16px;
+    color:var(--text-hi);
+    margin-bottom:40px;
+    letter-spacing:0.2px;
+  }
+
+  .logo-mark{
+    width:26px;
+    height:26px;
+    border-radius:7px;
+    background:linear-gradient(135deg, var(--cyan), var(--magenta));
+    flex-shrink:0;
+  }
+
+  nav{display:flex; flex-direction:column; gap:2px;}
+
+  .nav-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:10px 12px;
+    border-radius:8px;
+    font-size:14px;
+    font-weight:500;
+    color:var(--text-body);
+    border-left:2px solid transparent;
+    transition:background 0.15s ease, color 0.15s ease;
+  }
+
+  .nav-item:hover{background:rgba(255,255,255,0.03); color:var(--text-hi);}
+
+  .nav-item.active{
+    color:var(--text-hi);
+    background:rgba(0,240,255,0.06);
+    border-left:2px solid var(--cyan);
+  }
+
+  .nav-icon{width:16px; height:16px; flex-shrink:0; display:flex; align-items:center; justify-content:center;}
+  .nav-icon svg{width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:1.6;}
+
+  .sidebar-foot{
+    margin-top:auto;
+    padding-top:16px;
+    border-top:1px solid var(--border);
+    font-size:12px;
+    color:var(--text-dim);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+
+  .env-dot{width:6px; height:6px; border-radius:50%; background:var(--cyan); box-shadow:0 0 6px var(--cyan);}
+
+  /* ---------- Main ---------- */
+  main{flex:1; padding:36px 44px 60px; min-width:0;}
+
+  .page-head{margin-bottom:28px;}
+
+  h1{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:26px;
+    color:var(--text-hi);
+    letter-spacing:0.2px;
+  }
+
+  .subtitle{font-size:13.5px; color:var(--text-dim); margin-top:6px;}
+
+  .panel{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:24px 26px;
+    margin-bottom:20px;
+  }
+
+  .panel-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:20px;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+
+  .panel-title{font-size:15px; font-weight:600; color:var(--text-hi); font-family:'Space Grotesk', sans-serif;}
+  .panel-hint{font-size:12px; color:var(--text-dim);}
+
+  /* ---------- Compare section ---------- */
+  .compare-pickers{display:flex; align-items:center; gap:14px; margin-bottom:24px; flex-wrap:wrap;}
+
+  .picker{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:9px 14px;
+    font-size:13px;
+  }
+
+  .picker-swatch{width:8px; height:8px; border-radius:2px; flex-shrink:0;}
+  .picker select{background:none; border:none; color:var(--text-hi); font-size:13px; font-weight:500; outline:none;}
+  .picker select option{background:var(--surface-2); color:var(--text-hi);}
+
+  .vs-label{font-size:12px; color:var(--text-dim); font-family:'JetBrains Mono', monospace;}
+
+  .compare-rows{display:flex; flex-direction:column; gap:18px;}
+
+  .compare-row-label{
+    display:flex;
+    justify-content:space-between;
+    font-size:12.5px;
+    color:var(--text-body);
+    margin-bottom:8px;
+  }
+
+  .compare-row-label .metric-name{color:var(--text-hi); font-weight:500;}
+
+  .compare-bars{display:flex; flex-direction:column; gap:5px;}
+
+  .compare-bar-track{
+    height:7px;
+    border-radius:4px;
+    background:var(--surface-2);
+    overflow:hidden;
+    position:relative;
+  }
+
+  .compare-bar-fill{height:100%; border-radius:4px;}
+  .compare-bar-fill.a{background:var(--cyan);}
+  .compare-bar-fill.b{background:var(--magenta);}
+
+  .compare-bar-value{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    color:var(--text-dim);
+    display:flex;
+    justify-content:space-between;
+  }
+
+  /* ---------- Leaderboard ---------- */
+  table{width:100%; border-collapse:collapse;}
+
+  thead th{
+    text-align:left;
+    font-size:11px;
+    font-weight:500;
+    color:var(--text-dim);
+    text-transform:uppercase;
+    letter-spacing:0.4px;
+    padding:0 0 12px;
+    border-bottom:1px solid var(--border);
+  }
+
+  tbody td{
+    padding:13px 0;
+    font-size:13.5px;
+    color:var(--text-body);
+    border-bottom:1px solid var(--border);
+    vertical-align:middle;
+  }
+
+  tbody tr:last-child td{border-bottom:none;}
+
+  .rank-cell{display:flex; align-items:center; gap:10px;}
+  .rank-num{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    color:var(--text-dim);
+    width:16px;
+  }
+  .pattern-name{color:var(--text-hi); font-weight:500;}
+
+  .mono{font-family:'JetBrains Mono', monospace; color:var(--text-hi); font-size:13px;}
+  .mono-dim{font-family:'JetBrains Mono', monospace; color:var(--text-dim); font-size:12px;}
+
+  .trend-up{color:var(--cyan); font-family:'JetBrains Mono', monospace; font-size:12.5px;}
+  .trend-down{color:var(--magenta); font-family:'JetBrains Mono', monospace; font-size:12.5px;}
+
+  .mini-bar{width:70px; height:5px; border-radius:3px; background:var(--surface-2); overflow:hidden; display:inline-block; vertical-align:middle; margin-right:8px;}
+  .mini-bar-fill{height:100%; border-radius:3px; background:linear-gradient(90deg, var(--cyan), var(--magenta));}
+
+  /* ---------- Heatmap ---------- */
+  .heatmap-scroll{overflow-x:auto;}
+  .heatmap{border-collapse:separate; border-spacing:4px; min-width:640px;}
+  .heatmap th{
+    font-size:11px;
+    font-weight:500;
+    color:var(--text-dim);
+    padding:0 6px 10px;
+    text-align:center;
+    text-transform:none;
+    border:none;
+  }
+  .heatmap th:first-child{text-align:left;}
+  .heatmap td{border:none; padding:0;}
+
+  .usecase-label{
+    font-size:12.5px;
+    color:var(--text-body);
+    font-weight:500;
+    padding-right:14px;
+    white-space:nowrap;
+  }
+
+  .heat-cell{
+    width:88px;
+    height:46px;
+    border-radius:8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--text-hi);
+    border:1px solid var(--border);
+  }
+
+  .heat-legend{display:flex; align-items:center; gap:10px; margin-top:16px; font-size:11.5px; color:var(--text-dim);}
+  .heat-legend-scale{
+    width:120px; height:6px; border-radius:3px;
+    background:linear-gradient(90deg, rgba(0,240,255,0.08), rgba(0,240,255,0.9));
+  }
+
+  /* ---------- Recommendations ---------- */
+  .rec-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:16px;}
+
+  .rec-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:20px;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .rec-card::before{
+    content:"";
+    position:absolute;
+    top:0; left:0; bottom:0;
+    width:2px;
+  }
+
+  .rec-card.pos::before{background:var(--cyan);}
+  .rec-card.warn::before{background:var(--magenta);}
+
+  .rec-tag{
+    display:inline-block;
+    font-size:10.5px;
+    font-weight:600;
+    letter-spacing:0.3px;
+    text-transform:uppercase;
+    padding:3px 8px;
+    border-radius:5px;
+    margin-bottom:12px;
+  }
+
+  .rec-card.pos .rec-tag{color:var(--cyan); background:rgba(0,240,255,0.08);}
+  .rec-card.warn .rec-tag{color:var(--magenta); background:rgba(189,0,255,0.1);}
+
+  .rec-title{font-size:14.5px; font-weight:600; color:var(--text-hi); font-family:'Space Grotesk', sans-serif; margin-bottom:8px; line-height:1.3;}
+  .rec-body{font-size:12.5px; color:var(--text-body); line-height:1.6; margin-bottom:14px;}
+  .rec-link{font-size:12px; color:var(--text-hi); font-weight:500; display:inline-flex; align-items:center; gap:5px;}
+  .rec-link svg{width:11px; height:11px; stroke:currentColor; fill:none; stroke-width:2;}
+
+  a.row-link:focus-visible, .nav-item:focus-visible, .picker select:focus-visible, .rec-link:focus-visible{
+    outline:1.5px solid var(--cyan);
+    outline-offset:2px;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 1080px){
+    .rec-grid{grid-template-columns:1fr;}
+  }
+
+  @media (max-width: 760px){
+    body{flex-direction:column;}
+    .sidebar{width:100%; height:auto; position:relative; flex-direction:row; align-items:center; padding:16px 20px; overflow-x:auto;}
+    .logo{margin-bottom:0; margin-right:24px;}
+    nav{flex-direction:row;}
+    .sidebar-foot{display:none;}
+    main{padding:28px 20px 48px;}
+    .panel{padding:20px;}
+  }
+</style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="logo">
+      <span class="logo-mark"></span>
+      Agent Ops
+    </div>
+    <nav>
+      <a class="nav-item" href="dashboard.html">
+        <span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
+        Dashboard
+      </a>
+      <a class="nav-item" href="builds.html">
+        <span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg></span>
+        Builds
+      </a>
+      <a class="nav-item active" href="#">
+        <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 19V9M11 19V4M18 19v-6"/></svg></span>
+        Insights
+      </a>
+      <a class="nav-item" href="#">
+        <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></span>
+        Settings
+      </a>
+    </nav>
+    <div class="sidebar-foot">
+      <span class="env-dot"></span>
+      gcp-agent-ops-prod
+    </div>
+  </aside>
+
+  <main>
+    <div class="page-head">
+      <h1>Insights</h1>
+      <div class="subtitle">Compare builds and surface best practices across patterns and use cases</div>
+    </div>
+
+    <!-- Build comparison -->
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Build comparison</div>
+        <div class="panel-hint">6 core metrics, side by side</div>
+      </div>
+
+      <div class="compare-pickers">
+        <div class="picker">
+          <span class="picker-swatch" style="background:var(--cyan)"></span>
+          <select>
+            <option>Support-Triage-Orchestrator</option>
+          </select>
+        </div>
+        <span class="vs-label">vs</span>
+        <div class="picker">
+          <span class="picker-swatch" style="background:var(--magenta)"></span>
+          <select>
+            <option>Doc-QA-ToolChain</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="compare-rows">
+        <div>
+          <div class="compare-row-label"><span class="metric-name">Task success rate</span></div>
+          <div class="compare-bars">
+            <div class="compare-bar-track"><div class="compare-bar-fill a" style="width:94%"></div></div>
+            <div class="compare-bar-value"><span>Support-Triage-Orchestrator</span><span>94%</span></div>
+            <div class="compare-bar-track"><div class="compare-bar-fill b" style="width:69%"></div></div>
+            <div class="compare-bar-value"><span>Doc-QA-ToolChain</span><span>69%</span></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="compare-row-label"><span class="metric-name">Error rate</span></div>
+          <div class="compare-bars">
+            <div class="compare-bar-track"><div class="compare-bar-fill a" style="width:14%"></div></div>
+            <div class="compare-bar-value"><span>Support-Triage-Orchestrator</span><span>2.1%</span></div>
+            <div class="compare-bar-track"><div class="compare-bar-fill b" style="width:97%"></div></div>
+            <div class="compare-bar-value"><span>Doc-QA-ToolChain</span><span>14.5%</span></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="compare-row-label"><span class="metric-name">Trajectory efficiency</span></div>
+          <div class="compare-bars">
+            <div class="compare-bar-track"><div class="compare-bar-fill a" style="width:88%"></div></div>
+            <div class="compare-bar-value"><span>Support-Triage-Orchestrator</span><span>88%</span></div>
+            <div class="compare-bar-track"><div class="compare-bar-fill b" style="width:61%"></div></div>
+            <div class="compare-bar-value"><span>Doc-QA-ToolChain</span><span>61%</span></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="compare-row-label"><span class="metric-name">Tool call accuracy</span></div>
+          <div class="compare-bars">
+            <div class="compare-bar-track"><div class="compare-bar-fill a" style="width:96%"></div></div>
+            <div class="compare-bar-value"><span>Support-Triage-Orchestrator</span><span>96%</span></div>
+            <div class="compare-bar-track"><div class="compare-bar-fill b" style="width:74%"></div></div>
+            <div class="compare-bar-value"><span>Doc-QA-ToolChain</span><span>74%</span></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="compare-row-label"><span class="metric-name">Reasoning coherence</span></div>
+          <div class="compare-bars">
+            <div class="compare-bar-track"><div class="compare-bar-fill a" style="width:91%"></div></div>
+            <div class="compare-bar-value"><span>Support-Triage-Orchestrator</span><span>91 / 100</span></div>
+            <div class="compare-bar-track"><div class="compare-bar-fill b" style="width:68%"></div></div>
+            <div class="compare-bar-value"><span>Doc-QA-ToolChain</span><span>68 / 100</span></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="compare-row-label"><span class="metric-name">Cost per run</span></div>
+          <div class="compare-bars">
+            <div class="compare-bar-track"><div class="compare-bar-fill a" style="width:37%"></div></div>
+            <div class="compare-bar-value"><span>Support-Triage-Orchestrator</span><span>$0.42</span></div>
+            <div class="compare-bar-track"><div class="compare-bar-fill b" style="width:100%"></div></div>
+            <div class="compare-bar-value"><span>Doc-QA-ToolChain</span><span>$1.15</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pattern leaderboard -->
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Pattern leaderboard</div>
+        <div class="panel-hint">Ranked by avg task success rate</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Pattern</th>
+            <th>Builds</th>
+            <th>Avg success</th>
+            <th>Avg error</th>
+            <th>Avg cost / run</th>
+            <th>7d trend</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="rank-cell"><span class="rank-num">01</span><span class="pattern-name">Orchestrator-worker</span></td>
+            <td class="mono-dim">8</td>
+            <td><span class="mini-bar"><span class="mini-bar-fill" style="width:91%"></span></span><span class="mono">91.2%</span></td>
+            <td class="mono">3.4%</td>
+            <td class="mono">$0.38</td>
+            <td class="trend-up">▲ 1.8 pts</td>
+          </tr>
+          <tr>
+            <td class="rank-cell"><span class="rank-num">02</span><span class="pattern-name">Reflexion</span></td>
+            <td class="mono-dim">4</td>
+            <td><span class="mini-bar"><span class="mini-bar-fill" style="width:89%"></span></span><span class="mono">89.5%</span></td>
+            <td class="mono">3.8%</td>
+            <td class="mono">$0.31</td>
+            <td class="trend-up">▲ 0.6 pts</td>
+          </tr>
+          <tr>
+            <td class="rank-cell"><span class="rank-num">03</span><span class="pattern-name">ReAct</span></td>
+            <td class="mono-dim">6</td>
+            <td><span class="mini-bar"><span class="mini-bar-fill" style="width:87%"></span></span><span class="mono">87.0%</span></td>
+            <td class="mono">4.9%</td>
+            <td class="mono">$0.19</td>
+            <td class="trend-up">▲ 2.4 pts</td>
+          </tr>
+          <tr>
+            <td class="rank-cell"><span class="rank-num">04</span><span class="pattern-name">Planner-executor</span></td>
+            <td class="mono-dim">3</td>
+            <td><span class="mini-bar"><span class="mini-bar-fill" style="width:82%"></span></span><span class="mono">82.1%</span></td>
+            <td class="mono">7.9%</td>
+            <td class="mono">$0.27</td>
+            <td class="trend-down">▼ 0.9 pts</td>
+          </tr>
+          <tr>
+            <td class="rank-cell"><span class="rank-num">05</span><span class="pattern-name">Multi-agent debate</span></td>
+            <td class="mono-dim">2</td>
+            <td><span class="mini-bar"><span class="mini-bar-fill" style="width:79%"></span></span><span class="mono">79.3%</span></td>
+            <td class="mono">10.1%</td>
+            <td class="mono">$1.06</td>
+            <td class="trend-down">▼ 1.2 pts</td>
+          </tr>
+          <tr>
+            <td class="rank-cell"><span class="rank-num">06</span><span class="pattern-name">Tool-use chain</span></td>
+            <td class="mono-dim">1</td>
+            <td><span class="mini-bar"><span class="mini-bar-fill" style="width:69%"></span></span><span class="mono">69.0%</span></td>
+            <td class="mono">14.5%</td>
+            <td class="mono">$1.15</td>
+            <td class="trend-down">▼ 3.1 pts</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Heatmap -->
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Success rate by use case &amp; pattern</div>
+        <div class="panel-hint">Avg task success, last 30 days</div>
+      </div>
+      <div class="heatmap-scroll">
+        <table class="heatmap">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Orchestrator</th>
+              <th>Reflexion</th>
+              <th>ReAct</th>
+              <th>Planner</th>
+              <th>Multi-agent</th>
+              <th>Tool-chain</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="usecase-label">Customer support</td>
+              <td><div class="heat-cell" style="background:rgba(0,240,255,0.32)">94%</div></td>
+              <td><div class="heat-cell" style="background:rgba(0,240,255,0.24)">88%</div></td>
+              <td><div class="heat-cell" style="background:rgba(0,240,255,0.34)">96%</div></td>
+              <td><div class="heat-cell" style="background:rgba(0,240,255,0.16)">80%</div></td>
+              <td><div class="heat-cell" style="background:rgba(0,240,255,0.10)">72%</div></td>
+              <td><div class="heat-cell" style="background:rgba(0,240,255,0.08)">68%</div></td>
+            </tr>
+            <tr>
+              <td class="usecase-label">Finance ops</td>
+              <td><div class="heat-cell" style="background:rgba(0,240,255,0.22)">86%</div></td>
+              <td><div class="heat-cell" style="background:rgba(0,240,255,0.20)">85%</div></td>
+              <td><div class="heat-cell" style="background:rgba(0,240,255,0.24)">88%</div></td>
+              <td><div class="heat-cell" style="background:rgba(0,240,255,0.20)">79%</div></td>
+              <td><div class="heat-cell" style="background:rgba(0,240,255,0.10)">74%</div></td>
+              <td><div class="heat-cell" style="background:rgba(0,240,255,0.06)">65%</div></td>
+            </tr>
+            <tr>
+              <td class="usecase-label">Sales research</td>
+              <td><div class="heat-cell" style="background:rgba(0,240,255,0.14)">78%</div></td>
+              <td><div class="heat-cell" style="background:rgba(0,240,255,0.12)">76%</div></td>
+              <td><div class="heat-cell" style="background:rgba(0,240,255,0.14)">77%</div></td>
+              <td><div class="heat-cell" style="background:rgba(0,240,255,0.10)">73%</div></td>
+              <td><div class="heat-cell" style="background:rgba(0,240,255,0.10)">76%</div></td>
+              <td><div class="heat-cell" style="background:rgba(0,240,255,0.04)">62%</div></td>
+            </tr>
+            <tr>
+              <td class="usecase-label">Engineering</td>
+              <td><div class="heat-cell" style="background:rgba(0,240,255,0.26)">89%</div></td>
+              <td><div class="heat-cell" style="background:rgba(0,240,255,0.28)">91%</div></td>
+              <td><div class="heat-cell" style="background:rgba(0,240,255,0.20)">84%</div></td>
+              <td><div class="heat-cell" style="background:rgba(0,240,255,0.14)">77%</div></td>
+              <td><div class="heat-cell" style="background:rgba(0,240,255,0.08)">70%</div></td>
+              <td><div class="heat-cell" style="background:rgba(0,240,255,0.06)">66%</div></td>
+            </tr>
+            <tr>
+              <td class="usecase-label">Document QA</td>
+              <td><div class="heat-cell" style="background:rgba(0,240,255,0.18)">81%</div></td>
+              <td><div class="heat-cell" style="background:rgba(0,240,255,0.14)">77%</div></td>
+              <td><div class="heat-cell" style="background:rgba(0,240,255,0.16)">79%</div></td>
+              <td><div class="heat-cell" style="background:rgba(0,240,255,0.10)">73%</div></td>
+              <td><div class="heat-cell" style="background:rgba(0,240,255,0.06)">67%</div></td>
+              <td><div class="heat-cell" style="background:rgba(189,0,255,0.14)">69%</div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="heat-legend">
+        <span>Lower success</span>
+        <span class="heat-legend-scale"></span>
+        <span>Higher success</span>
+      </div>
+    </section>
+
+    <!-- Recommendations -->
+    <section>
+      <div class="panel-head" style="margin-bottom:16px;">
+        <div class="panel-title">Recommendations</div>
+        <div class="panel-hint">Generated from live build data</div>
+      </div>
+      <div class="rec-grid">
+        <div class="rec-card pos">
+          <span class="rec-tag">Best practice</span>
+          <div class="rec-title">Orchestrator-worker leads on complex, multi-step work</div>
+          <div class="rec-body">Across customer support and procurement builds, orchestrator-worker averages 91% task success versus 76% for multi-agent debate on comparable workflows. Default to it for high-dependency tasks.</div>
+          <a class="rec-link" href="builds.html">View builds <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+
+        <div class="rec-card warn">
+          <span class="rec-tag">Investigate</span>
+          <div class="rec-title">Tool-use chains show the highest error concentration</div>
+          <div class="rec-body">Doc-QA-ToolChain runs a 14.5% error rate, over 4x the platform average. Tool call accuracy is the weakest metric — review tool-selection logic before scaling this pattern further.</div>
+          <a class="rec-link" href="builds.html">View builds <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+
+        <div class="rec-card pos">
+          <span class="rec-tag">Best practice</span>
+          <div class="rec-title">ReAct wins on cost-to-success for lightweight tasks</div>
+          <div class="rec-body">Ticket-Router-ReAct reaches 96% success at $0.14 per run, the best ratio of any active build. A strong default pattern for simple, single-step workflows.</div>
+          <a class="rec-link" href="builds.html">View builds <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+</body>
+</html>
