@@ -1,0 +1,7 @@
+crewai
+pydantic
+google-cloud-firestore
+google-cloud-tasks
+python-dotenv
+fastapi
+uvicorn
