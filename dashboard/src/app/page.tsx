@@ -5,18 +5,19 @@ import { TrendChart } from "@/components/TrendChart";
 import { AttentionList } from "@/components/AttentionList";
 import { BuildsTable } from "@/components/BuildsTable";
 import { useJobs } from "@/dao/jobs/useJobs";
+import { Job } from "@/types";
 
 export default function Home() {
   const { jobs } = useJobs();
 
   // Mock data for initial display if loading or empty
-  const mockJobs = [
-    { id: "Support-Triage-Orchestrator", pattern: "Orchestrator-worker", successRate: 94, errorRate: 2.1, cost: 412, status: "RUNNING" as const, framework: "langgraph", createdAt: new Date(), updatedAt: new Date() },
-    { id: "Invoice-Extraction-ReAct", pattern: "ReAct", successRate: 88, errorRate: 5.4, cost: 189, status: "RUNNING" as const, framework: "gemini-adk", createdAt: new Date(), updatedAt: new Date() },
-    { id: "Sales-Research-MultiAgent", pattern: "Multi-agent debate", successRate: 76, errorRate: 11.2, cost: 902, status: "FAILED" as const, framework: "crewai", createdAt: new Date(), updatedAt: new Date() },
-    { id: "Code-Review-Reflexion", pattern: "Reflexion", successRate: 91, errorRate: 3, cost: 267, status: "RUNNING" as const, framework: "langgraph", createdAt: new Date(), updatedAt: new Date() },
-    { id: "Onboarding-Planner", pattern: "Planner-executor", successRate: 82, errorRate: 6.8, cost: 154, status: "RUNNING" as const, framework: "gemini-adk", createdAt: new Date(), updatedAt: new Date() },
-    { id: "Doc-QA-ToolChain", pattern: "Tool-use chain", successRate: 69, errorRate: 14.5, cost: 338, status: "FAILED" as const, framework: "crewai", createdAt: new Date(), updatedAt: new Date() },
+  const mockJobs: Job[] = [
+    { id: "Support-Triage-Orchestrator", topology_type: "SEQUENTIAL", runtime_target: "crewai", successRate: 94, errorRate: 2.1, cost: 412, status: "RUNNING" as const, createdAt: new Date(), updatedAt: new Date() },
+    { id: "Invoice-Extraction-ReAct", topology_type: "STATEFUL", runtime_target: "langgraph", successRate: 88, errorRate: 5.4, cost: 189, status: "RUNNING" as const, createdAt: new Date(), updatedAt: new Date() },
+    { id: "Sales-Research-MultiAgent", topology_type: "ADAPTIVE", runtime_target: "gemini-adk", successRate: 76, errorRate: 11.2, cost: 902, status: "FAILED" as const, createdAt: new Date(), updatedAt: new Date() },
+    { id: "Code-Review-Reflexion", topology_type: "STATEFUL", runtime_target: "langgraph", successRate: 91, errorRate: 3, cost: 267, status: "RUNNING" as const, createdAt: new Date(), updatedAt: new Date() },
+    { id: "Onboarding-Planner", topology_type: "OS_KERNEL", runtime_target: "microkernel-v1", successRate: 82, errorRate: 6.8, cost: 154, status: "RUNNING" as const, createdAt: new Date(), updatedAt: new Date() },
+    { id: "Doc-QA-ToolChain", topology_type: "SEQUENTIAL", runtime_target: "crewai", successRate: 69, errorRate: 14.5, cost: 338, status: "FAILED" as const, createdAt: new Date(), updatedAt: new Date() },
   ];
 
   const displayJobs = jobs.length > 0 ? jobs : mockJobs;

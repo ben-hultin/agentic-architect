@@ -8,13 +8,21 @@ import { enqueueBenchmarkingJob } from "@/services/cloudTasks";
 export default function BuildDetailsPage({ params }: Readonly<{ params: { id: string } }>) {
   const buildId = params.id;
   const [isRunning, setIsRunning] = useState(false);
+  
+  // Mock determination of topology_type based on buildId
+  const isMicrokernel = buildId.includes("Planner");
+  const topology_type = isMicrokernel ? "OS_KERNEL" : "SEQUENTIAL";
+  const runtime_target = isMicrokernel ? "microkernel-v1-image" : "crewai";
 
   const handleRunTest = async () => {
     setIsRunning(true);
     try {
       await enqueueBenchmarkingJob({
         jobId: buildId,
-        framework: "langgraph", // Example
+        topology_type,
+        runtime_target,
+        memory_config: isMicrokernel ? { kv_cache_strategy: "PolyKV_Asymmetric", paging_enabled: true } : undefined,
+        fault_profile: "Tool_Network_Drop_503",
         evalSetPath: "evalsets/default.json"
       });
       alert("Benchmarking job enqueued!");
@@ -38,7 +46,7 @@ export default function BuildDetailsPage({ params }: Readonly<{ params: { id: st
           <h1 className="text-[26px] font-semibold text-text-hi font-heading tracking-tight">{buildId}</h1>
           <div className="flex items-center gap-2.5 mt-2 flex-wrap">
             <span className="inline-block text-[11.5px] font-medium text-text-hi bg-cyan/10 border border-cyan/30 py-1 px-2.5 rounded-md">
-              Agentic Pattern: Orchestrator-worker
+              Topology: {topology_type}
             </span>
             <div className="flex items-center gap-2 text-[13px] font-medium">
               <span className="w-[7px] h-[7px] rounded-full bg-cyan shadow-[0_0_6px_rgba(0,240,255,0.7)] animate-pulse" />
@@ -131,67 +139,95 @@ export default function BuildDetailsPage({ params }: Readonly<{ params: { id: st
       </section>
 
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
-        <div className="bg-surface border border-border rounded-xl p-[22px] px-6">
-          <div className="flex justify-between items-baseline mb-4">
-            <div className="text-[14.5px] font-semibold text-text-hi font-heading">Quality & Reasoning Parameters</div>
-            <div className="text-[12px] text-text-dim font-mono">LLM Context & Evaluators</div>
-          </div>
-          <div className="flex flex-col gap-5 mt-2.5">
-            <MetricCard 
-              title="Quality of Output" 
-              body="Evaluates critical macro generation indicators across production cycles, validating granular data accuracy, strict schema compliance, contextual relevance, structural clarity, and rigid adherence to system guidelines."
-              score="92 / 100"
-              progress={92}
-            />
-            <MetricCard 
-              title="Reasoning Coherence" 
-              body="Audits internal system trajectory execution logic. Validates state graphs and path choices to prevent agents from executing counter-intuitive choices or fracturing into broken, unproductive thinking cycles."
-              score="91 / 100"
-              progress={91}
-            />
-            <div className="bg-surface-2 border border-border rounded-lg p-4 flex flex-col gap-2">
-              <div className="text-[13px] font-semibold text-text-hi">Size of Context Managed</div>
-              <p className="text-[12px] text-text-body leading-relaxed flex-grow">
-                Flags systematic "context bloat." Tracks the trajectory data profile over multi-turn interactions, highlighting where historical responses recursively append to systemic payloads, blowing out costs.
-              </p>
-              <div className="flex items-center justify-between mt-1 pt-2 border-t border-white/5">
-                <span className="text-[12px] text-text-dim">Avg Working Window:</span>
-                <span className="font-mono text-[14px] font-semibold text-magenta">18.4k tokens</span>
+        {topology_type === "OS_KERNEL" ? (
+          <>
+            <div className="bg-surface border border-border rounded-xl p-[22px] px-6">
+              <div className="flex justify-between items-baseline mb-4">
+                <div className="text-[14.5px] font-semibold text-text-hi font-heading">Hardware & Memory Efficiency</div>
+                <div className="text-[12px] text-text-dim font-mono">Microkernel Execution</div>
+              </div>
+              <div className="flex flex-col gap-5 mt-2.5">
+                <MetricCard 
+                  title="Context Compression Ratio" 
+                  body="Measures memory reduction achieved when multiple agents share a base context window using PolyKV caching compared to raw memory expansion."
+                  score="3.2x savings"
+                  progress={82}
+                />
+                <div className="bg-surface-2 border border-border rounded-lg p-4 flex flex-col gap-2">
+                  <div className="text-[13px] font-semibold text-text-hi">Wasm Tool Initialisation Speed</div>
+                  <p className="text-[12px] text-text-body leading-relaxed flex-grow">
+                    Tracks cold start differences between running isolated tools in a WebAssembly sandbox vs. traditional Python subprocess executions.
+                  </p>
+                  <div className="flex items-center justify-between mt-1 pt-2 border-t border-white/5">
+                    <span className="text-[12px] text-text-dim">Avg Init Latency:</span>
+                    <span className="font-mono text-[14px] font-semibold text-cyan">42ms</span>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div className="bg-surface border border-border rounded-xl p-[22px] px-6">
-          <div className="flex justify-between items-baseline mb-4">
-            <div className="text-[14.5px] font-semibold text-text-hi font-heading">Resilience & Tool Infrastructure</div>
-            <div className="text-[12px] text-text-dim font-mono">Runtime Diagnostics</div>
-          </div>
-          <div className="flex flex-col gap-5 mt-2.5">
-            <div className="bg-surface-2 border border-border rounded-lg p-4 flex flex-col gap-2">
-              <div className="text-[13px] font-semibold text-text-hi">Error Rate & Resilience</div>
-              <p className="text-[12px] text-text-body leading-relaxed flex-grow">
-                Determines infrastructure fault-tolerance and dynamic correction response when encountering unpredictable environment mutations, unexpected server downtime, rate limits, or corrupted logic payloads.
-              </p>
-              <div className="flex items-center justify-between mt-1 pt-2 border-t border-white/5">
-                <span className="text-[12px] text-text-dim">System Resilience Rating:</span>
-                <span className="font-mono text-[14px] font-semibold text-[#7de8a8]">High (2.1% Err)</span>
+            <div className="bg-surface border border-border rounded-xl p-[22px] px-6">
+              <div className="flex justify-between items-baseline mb-4">
+                <div className="text-[14.5px] font-semibold text-text-hi font-heading">Resource & Threat Isolation</div>
+                <div className="text-[12px] text-text-dim font-mono">Syscall Layer</div>
+              </div>
+              <div className="flex flex-col gap-5 mt-2.5">
+                <div className="bg-surface-2 border border-border rounded-lg p-4 flex flex-col gap-2">
+                  <div className="text-[13px] font-semibold text-text-hi">Scheduler Preemption Latency</div>
+                  <p className="text-[12px] text-text-body leading-relaxed flex-grow">
+                    Quantifies the overhead required to freeze a runaway thread, save its trajectory, and pass execution back to the scheduling queue.
+                  </p>
+                  <div className="flex items-center justify-between mt-1 pt-2 border-t border-white/5">
+                    <span className="text-[12px] text-text-dim">Overhead Delay:</span>
+                    <span className="font-mono text-[14px] font-semibold text-[#7de8a8]">12.4ms</span>
+                  </div>
+                </div>
               </div>
             </div>
-            <MetricCard 
-              title="Trajectory Efficiency" 
-              body="Analyzes step execution vectors. Tallies path optimization to map out how cleanly and linearly the engine evaluates tasks without looping on redundant tools or triggering circular operations."
-              score="88% Eff"
-              progress={88}
-            />
-            <MetricCard 
-              title="Tool Call Accuracy" 
-              body="Monitors the system API abstraction layer. Ensures strict schema verification and parameter typing, validating that generated commands strictly map to target environments without parameter hallucinations."
-              score="96% Acc"
-              progress={96}
-            />
-          </div>
-        </div>
+          </>
+        ) : (
+          <>
+            <div className="bg-surface border border-border rounded-xl p-[22px] px-6">
+              <div className="flex justify-between items-baseline mb-4">
+                <div className="text-[14.5px] font-semibold text-text-hi font-heading">Framework Capabilities & Resiliency</div>
+                <div className="text-[12px] text-text-dim font-mono">App-Layer Execution</div>
+              </div>
+              <div className="flex flex-col gap-5 mt-2.5">
+                <MetricCard 
+                  title="Graph Trajectory Accuracy" 
+                  body="Measures how frequently the agent strays from defined state boundaries or gets stuck in cyclical tool-calling loops."
+                  score="92% Acc"
+                  progress={92}
+                />
+                <MetricCard 
+                  title="Thread Recovery Overhead" 
+                  body="Recovery latency required to log an error checkpoint to a database, instantiate a new turn, and resume execution after failure."
+                  score="88% Eff"
+                  progress={88}
+                />
+              </div>
+            </div>
+
+            <div className="bg-surface border border-border rounded-xl p-[22px] px-6">
+              <div className="flex justify-between items-baseline mb-4">
+                <div className="text-[14.5px] font-semibold text-text-hi font-heading">Consumption & State Profile</div>
+                <div className="text-[12px] text-text-dim font-mono">Graph Diagnostics</div>
+              </div>
+              <div className="flex flex-col gap-5 mt-2.5">
+                <div className="bg-surface-2 border border-border rounded-lg p-4 flex flex-col gap-2">
+                  <div className="text-[13px] font-semibold text-text-hi">Cascading Token Consumption</div>
+                  <p className="text-[12px] text-text-body leading-relaxed flex-grow">
+                    Tracks how quickly costs compound when a single instruction triggers multi-tiered manager/worker delegation loops.
+                  </p>
+                  <div className="flex items-center justify-between mt-1 pt-2 border-t border-white/5">
+                    <span className="text-[12px] text-text-dim">Avg Multiplier:</span>
+                    <span className="font-mono text-[14px] font-semibold text-magenta">4.2x baseline</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </section>
     </div>
   );

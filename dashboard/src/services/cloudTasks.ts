@@ -1,3 +1,5 @@
+import { TopologyType, MemoryConfig } from "@/types";
+
 /**
  * Service for interacting with Google Cloud Tasks.
  * This will be used to enqueue benchmarking jobs.
@@ -5,7 +7,10 @@
 
 export interface TaskPayload {
   jobId: string;
-  framework: "gemini-adk" | "langgraph" | "crewai";
+  topology_type: TopologyType;
+  runtime_target: string;
+  memory_config?: MemoryConfig;
+  fault_profile?: string;
   evalSetPath: string;
 }
 

@@ -17,7 +17,7 @@ export const BuildsTable = ({ jobs }: BuildsTableProps) => {
           <thead>
             <tr>
               <th className="text-left text-[11.5px] font-medium text-text-dim uppercase tracking-[0.4px] p-2.5 px-6 border-b border-border">Build</th>
-              <th className="text-left text-[11.5px] font-medium text-text-dim uppercase tracking-[0.4px] p-2.5 px-6 border-b border-border">Pattern</th>
+              <th className="text-left text-[11.5px] font-medium text-text-dim uppercase tracking-[0.4px] p-2.5 px-6 border-b border-border">Topology</th>
               <th className="text-left text-[11.5px] font-medium text-text-dim uppercase tracking-[0.4px] p-2.5 px-6 border-b border-border">Task success</th>
               <th className="text-left text-[11.5px] font-medium text-text-dim uppercase tracking-[0.4px] p-2.5 px-6 border-b border-border">Error rate</th>
               <th className="text-left text-[11.5px] font-medium text-text-dim uppercase tracking-[0.4px] p-2.5 px-6 border-b border-border">Spend, 7d</th>
@@ -29,7 +29,7 @@ export const BuildsTable = ({ jobs }: BuildsTableProps) => {
               <tr key={job.id} className="hover:bg-white/[0.02] transition-colors">
                 <td className="p-3.5 px-6 text-[13.5px] text-text-hi font-medium border-b border-border last:border-0">{job.id}</td>
                 <td className="p-3.5 px-6 text-[13.5px] border-b border-border last:border-0">
-                  <span className="inline-block text-[11px] text-text-body bg-surface-2 border border-border py-0.5 px-2 rounded-md">{job.pattern}</span>
+                  <span className="inline-block text-[11px] text-text-body bg-surface-2 border border-border py-0.5 px-2 rounded-md">{job.topology_type}</span>
                 </td>
                 <td className="p-3.5 px-6 text-[13.5px] border-b border-border last:border-0">
                   <div className="flex items-center gap-2">

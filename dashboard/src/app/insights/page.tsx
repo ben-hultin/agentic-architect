@@ -9,7 +9,7 @@ export default function InsightsPage() {
     <div>
       <div className="mb-7">
         <h1 className="text-[26px] font-semibold text-text-hi font-heading tracking-tight">Insights</h1>
-        <div className="text-[13.5px] text-text-dim mt-1.5">Compare builds and surface best practices across patterns and use cases</div>
+        <div className="text-[13.5px] text-text-dim mt-1.5">Compare builds and surface best practices across topologies and use cases</div>
       </div>
 
       {/* Build Comparison */}
@@ -45,17 +45,17 @@ export default function InsightsPage() {
         </div>
       </section>
 
-      {/* Pattern Leaderboard */}
+      {/* Topology Leaderboard */}
       <section className="bg-surface border border-border rounded-xl p-6 px-[26px] mb-5">
         <div className="flex justify-between items-baseline mb-5">
-          <div className="text-[15px] font-semibold text-text-hi font-heading">Pattern leaderboard</div>
+          <div className="text-[15px] font-semibold text-text-hi font-heading">Topology leaderboard</div>
           <div className="text-[12px] text-text-dim">Ranked by avg task success rate</div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
               <tr>
-                <th className="text-left text-[11px] font-medium text-text-dim uppercase tracking-[0.4px] pb-3 border-b border-border">Pattern</th>
+                <th className="text-left text-[11px] font-medium text-text-dim uppercase tracking-[0.4px] pb-3 border-b border-border">Topology</th>
                 <th className="text-left text-[11px] font-medium text-text-dim uppercase tracking-[0.4px] pb-3 border-b border-border">Builds</th>
                 <th className="text-left text-[11px] font-medium text-text-dim uppercase tracking-[0.4px] pb-3 border-b border-border">Avg success</th>
                 <th className="text-left text-[11px] font-medium text-text-dim uppercase tracking-[0.4px] pb-3 border-b border-border">Avg error</th>
@@ -64,12 +64,10 @@ export default function InsightsPage() {
               </tr>
             </thead>
             <tbody>
-              <LeaderboardRow rank="01" name="Orchestrator-worker" builds={8} success={91.2} error="3.4%" cost="$0.38" trend="▲ 1.8 pts" trendUp />
-              <LeaderboardRow rank="02" name="Reflexion" builds={4} success={89.5} error="3.8%" cost="$0.31" trend="▲ 0.6 pts" trendUp />
-              <LeaderboardRow rank="03" name="ReAct" builds={6} success={87} error="4.9%" cost="$0.19" trend="▲ 2.4 pts" trendUp />
-              <LeaderboardRow rank="04" name="Planner-executor" builds={3} success={82.1} error="7.9%" cost="$0.27" trend="▼ 0.9 pts" />
-              <LeaderboardRow rank="05" name="Multi-agent debate" builds={2} success={79.3} error="10.1%" cost="$1.06" trend="▼ 1.2 pts" />
-              <LeaderboardRow rank="06" name="Tool-use chain" builds={1} success={69} error="14.5%" cost="$1.15" trend="▼ 3.1 pts" />
+              <LeaderboardRow rank="01" name="STATEFUL" builds={8} success={91.2} error="3.4%" cost="$0.38" trend="▲ 1.8 pts" trendUp />
+              <LeaderboardRow rank="02" name="SEQUENTIAL" builds={6} success={89.5} error="3.8%" cost="$0.31" trend="▲ 0.6 pts" trendUp />
+              <LeaderboardRow rank="03" name="OS_KERNEL" builds={4} success={87} error="4.9%" cost="$0.19" trend="▲ 2.4 pts" trendUp />
+              <LeaderboardRow rank="04" name="ADAPTIVE" builds={6} success={82.1} error="7.9%" cost="$0.27" trend="▼ 0.9 pts" />
             </tbody>
           </table>
         </div>
@@ -85,20 +83,20 @@ export default function InsightsPage() {
           <RecommendationCard 
             type="pos" 
             tag="Best practice" 
-            title="Orchestrator-worker leads on complex, multi-step work"
-            body="Across customer support and procurement builds, orchestrator-worker averages 91% task success versus 76% for multi-agent debate on comparable workflows. Default to it for high-dependency tasks."
+            title="OS_KERNEL context efficiency shines in high-turn chats"
+            body="Across deep workflow builds, OS_KERNEL achieves a 3.2x context compression ratio versus ADAPTIVE. Default to it for heavy tool-usage scenarios with PolyKV."
           />
           <RecommendationCard 
             type="warn" 
             tag="Investigate" 
-            title="Tool-use chains show the highest error concentration"
-            body="Doc-QA-ToolChain runs a 14.5% error rate, over 4x the platform average. Tool call accuracy is the weakest metric — review tool-selection logic before scaling this pattern further."
+            title="SEQUENTIAL topologies show high cascading token consumption"
+            body="Doc-QA-ToolChain runs an 14.5% error rate, triggering recursive delegation loops that blow out token budgets. Review explicit state boundaries and preemption."
           />
           <RecommendationCard 
             type="pos" 
             tag="Best practice" 
-            title="ReAct wins on cost-to-success for lightweight tasks"
-            body="Ticket-Router-ReAct reaches 96% success at $0.14 per run, the best ratio of any active build. A strong default pattern for simple, single-step workflows."
+            title="STATEFUL routing drift is minimized in cyclical flows"
+            body="Invoice-Extraction-ReAct reaches 96% success at $0.14 per run. Using Postgres checkpointers prevents trajectory drift during dynamic non-deterministic flows."
           />
         </div>
       </section>

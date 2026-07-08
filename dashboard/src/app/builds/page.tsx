@@ -3,17 +3,18 @@
 import { useJobs } from "@/dao/jobs/useJobs";
 import { Search, Plus, ChevronDown } from "lucide-react";
 import { clsx } from "clsx";
+import { Job } from "@/types";
 
 export default function BuildsPage() {
   const { jobs } = useJobs();
 
-  const mockJobs = [
-    { id: "Support-Triage-Orchestrator", useCase: "Customer support", pattern: "Orchestrator-worker", complexity: "High", successRate: 94, errorRate: 2.1, cost: 412, lastRun: "4m ago", status: "RUNNING" as const },
-    { id: "Invoice-Extraction-ReAct", useCase: "Finance ops", pattern: "ReAct", complexity: "Low", successRate: 88, errorRate: 5.4, cost: 189, lastRun: "11m ago", status: "RUNNING" as const },
-    { id: "Sales-Research-MultiAgent", useCase: "Sales research", pattern: "Multi-agent debate", complexity: "High", successRate: 76, errorRate: 11.2, cost: 902, lastRun: "2m ago", status: "FAILED" as const },
-    { id: "Code-Review-Reflexion", useCase: "Engineering", pattern: "Reflexion", complexity: "Medium", successRate: 91, errorRate: 3, cost: 267, lastRun: "18m ago", status: "RUNNING" as const },
-    { id: "Onboarding-Planner", useCase: "HR & onboarding", pattern: "Planner-executor", complexity: "Medium", successRate: 82, errorRate: 6.8, cost: 154, lastRun: "32m ago", status: "RUNNING" as const },
-    { id: "Doc-QA-ToolChain", useCase: "Document QA", pattern: "Tool-use chain", complexity: "Medium", successRate: 69, errorRate: 14.5, cost: 338, lastRun: "6m ago", status: "FAILED" as const },
+  const mockJobs: Job[] = [
+    { id: "Support-Triage-Orchestrator", useCase: "Customer support", topology_type: "SEQUENTIAL", runtime_target: "crewai", complexity: "High", successRate: 94, errorRate: 2.1, cost: 412, lastRun: "4m ago", status: "RUNNING" as const, createdAt: new Date(), updatedAt: new Date() },
+    { id: "Invoice-Extraction-ReAct", useCase: "Finance ops", topology_type: "STATEFUL", runtime_target: "langgraph", complexity: "Low", successRate: 88, errorRate: 5.4, cost: 189, lastRun: "11m ago", status: "RUNNING" as const, createdAt: new Date(), updatedAt: new Date() },
+    { id: "Sales-Research-MultiAgent", useCase: "Sales research", topology_type: "ADAPTIVE", runtime_target: "gemini-adk", complexity: "High", successRate: 76, errorRate: 11.2, cost: 902, lastRun: "2m ago", status: "FAILED" as const, createdAt: new Date(), updatedAt: new Date() },
+    { id: "Code-Review-Reflexion", useCase: "Engineering", topology_type: "STATEFUL", runtime_target: "langgraph", complexity: "Medium", successRate: 91, errorRate: 3, cost: 267, lastRun: "18m ago", status: "RUNNING" as const, createdAt: new Date(), updatedAt: new Date() },
+    { id: "Onboarding-Planner", useCase: "HR & onboarding", topology_type: "OS_KERNEL", runtime_target: "microkernel-v1", complexity: "Medium", successRate: 82, errorRate: 6.8, cost: 154, lastRun: "32m ago", status: "RUNNING" as const, createdAt: new Date(), updatedAt: new Date() },
+    { id: "Doc-QA-ToolChain", useCase: "Document QA", topology_type: "SEQUENTIAL", runtime_target: "crewai", complexity: "Medium", successRate: 69, errorRate: 14.5, cost: 338, lastRun: "6m ago", status: "FAILED" as const, createdAt: new Date(), updatedAt: new Date() },
   ];
 
   const displayJobs = jobs.length > 0 ? jobs : mockJobs;
@@ -23,7 +24,7 @@ export default function BuildsPage() {
       <div className="flex justify-between items-end mb-6 flex-wrap gap-4">
         <div>
           <h1 className="text-[26px] font-semibold text-text-hi font-heading tracking-tight">Builds</h1>
-          <div className="text-[13.5px] text-text-dim mt-1.5">24 builds across 6 agentic patterns</div>
+          <div className="text-[13.5px] text-text-dim mt-1.5">24 builds across 4 control topologies</div>
         </div>
         <button className="flex items-center gap-2 bg-gradient-to-r from-cyan to-magenta text-[#08111A] text-[13.5px] font-semibold py-2.5 px-4.5 rounded-lg border-none">
           <Plus className="w-3.5 h-3.5 stroke-[2.2]" />
@@ -41,7 +42,7 @@ export default function BuildsPage() {
           />
         </div>
         <div className="flex items-center gap-2 bg-surface border border-border text-text-body text-[13px] font-medium p-2.5 px-3.5 rounded-lg cursor-pointer">
-          Pattern: All
+          Topology: All
           <ChevronDown className="w-3 h-3 text-text-dim stroke-[1.8]" />
         </div>
         <div className="flex items-center gap-2 bg-surface border border-border text-text-body text-[13px] font-medium p-2.5 px-3.5 rounded-lg cursor-pointer">
@@ -60,7 +61,7 @@ export default function BuildsPage() {
           <thead>
             <tr>
               <th className="text-left text-[11.5px] font-medium text-text-dim uppercase tracking-[0.4px] p-3.5 px-5 border-b border-border whitespace-nowrap">Build</th>
-              <th className="text-left text-[11.5px] font-medium text-text-dim uppercase tracking-[0.4px] p-3.5 px-5 border-b border-border whitespace-nowrap">Pattern</th>
+              <th className="text-left text-[11.5px] font-medium text-text-dim uppercase tracking-[0.4px] p-3.5 px-5 border-b border-border whitespace-nowrap">Topology</th>
               <th className="text-left text-[11.5px] font-medium text-text-dim uppercase tracking-[0.4px] p-3.5 px-5 border-b border-border whitespace-nowrap">Complexity</th>
               <th className="text-left text-[11.5px] font-medium text-text-dim uppercase tracking-[0.4px] p-3.5 px-5 border-b border-border whitespace-nowrap">Task success</th>
               <th className="text-left text-[11.5px] font-medium text-text-dim uppercase tracking-[0.4px] p-3.5 px-5 border-b border-border whitespace-nowrap">Error rate</th>
@@ -79,7 +80,7 @@ export default function BuildsPage() {
                   </div>
                 </td>
                 <td className="p-4 px-5 border-b border-border last:border-0">
-                  <span className="inline-block text-[11px] text-text-body bg-surface-2 border border-border py-0.5 px-2 rounded-md whitespace-nowrap">{job.pattern}</span>
+                  <span className="inline-block text-[11px] text-text-body bg-surface-2 border border-border py-0.5 px-2 rounded-md whitespace-nowrap">{job.topology_type}</span>
                 </td>
                 <td className="p-4 px-5 border-b border-border last:border-0">
                   <div className="flex items-center gap-1.5 text-[11.5px] text-text-body">
