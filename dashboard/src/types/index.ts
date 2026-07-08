@@ -54,6 +54,12 @@ export interface Report {
       cascadingTokenConsumption: number;
       threadRecovery: number;
     };
+    sequential?: {
+      cascadingTokenVelocity: number;
+      ttftDegradation: number;
+      stepToOutputRatio: number;
+      chainRecoveryEfficiency: number;
+    };
   };
   timestamp: any;
 }
