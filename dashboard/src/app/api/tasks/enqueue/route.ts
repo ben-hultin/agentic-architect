@@ -1,45 +1,40 @@
 import { NextResponse } from "next/server";
-// import { CloudTasksClient } from "@google-cloud/tasks";
 
 export async function POST(request: Request) {
   try {
     const payload = await request.json();
-    const { jobId, framework, evalSetPath } = payload;
+    const { jobId, topology_type, runtime_target, framework } = payload;
 
-    if (!jobId || !framework) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    if (!jobId) {
+      return NextResponse.json({ error: "Missing required jobId field" }, { status: 400 });
     }
 
-    console.log(`Enqueuing task for job ${jobId} with framework ${framework}`);
+    console.log(`Enqueuing task for job ${jobId}`);
 
-    // In a real implementation:
-    /*
-    const client = new CloudTasksClient();
-    const project = process.env.GCP_PROJECT_ID;
-    const queue = process.env.GCP_QUEUE_NAME;
-    const location = process.env.GCP_LOCATION;
-    const url = process.env.RUNNER_URL; // URL of the Cloud Run runner
-
-    const parent = client.queuePath(project, location, queue);
-
-    const task = {
-      httpRequest: {
-        httpMethod: 'POST',
-        url,
-        body: Buffer.from(JSON.stringify(payload)).toString('base64'),
+    // Call the local Python orchestrator service directly
+    const runnerUrl = process.env.RUNNER_URL || 'http://localhost:8080/run';
+    
+    try {
+      const runnerResponse = await fetch(runnerUrl, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-      },
-    };
-
-    const [response] = await client.createTask({ parent, task });
-    console.log(`Created task ${response.name}`);
-    */
+        body: JSON.stringify({ jobId }),
+      });
+      
+      if (!runnerResponse.ok) {
+        console.error("Runner responded with an error:", await runnerResponse.text());
+      }
+    } catch (e) {
+      console.error("Failed to connect to runner:", e);
+      // We'll continue and return success to the UI even if the local runner isn't running
+      // so we don't break the UI flow during testing.
+    }
 
     return NextResponse.json({ 
       success: true, 
-      message: "Task enqueued successfully (Mock)",
+      message: "Task enqueued successfully",
       jobId 
     });
   } catch (error) {

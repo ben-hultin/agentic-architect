@@ -11,7 +11,7 @@ export interface TaskPayload {
   runtime_target: string;
   memory_config?: MemoryConfig;
   fault_profile?: string;
-  evalSetPath: string;
+  evalSetPath?: string;
 }
 
 export const enqueueBenchmarkingJob = async (payload: TaskPayload) => {

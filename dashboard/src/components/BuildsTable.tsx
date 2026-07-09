@@ -44,7 +44,9 @@ export const BuildsTable = ({ jobs }: BuildsTableProps) => {
                 <td className="p-3.5 px-6 text-[13.5px] border-b border-border last:border-0">
                   <div className="flex items-center gap-2">
                     <StatusDot status={job.status} />
-                    {job.status === "RUNNING" ? "Active" : job.status === "FAILED" ? "Attention" : "Completed"}
+                    {job.status === "RUNNING" 
+                      ? (job.currentStep !== undefined ? `Active (Step ${job.currentStep + 1})` : "Active") 
+                      : job.status === "FAILED" ? "Attention" : "Completed"}
                   </div>
                 </td>
               </tr>

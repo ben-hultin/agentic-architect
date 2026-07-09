@@ -6,6 +6,17 @@ export interface MemoryConfig {
   paging_enabled: boolean;
 }
 
+export interface StepMetric {
+  step_index: number;
+  agent_name: string;
+  input_tokens: number;
+  output_tokens: number;
+  ttft: number;
+  latency: number;
+  status: string;
+  error?: string | null;
+}
+
 export interface Job {
   id: string;
   topology_type: TopologyType;
@@ -21,6 +32,8 @@ export interface Job {
   useCase?: string;
   complexity?: string;
   lastRun?: string;
+  liveMetrics?: StepMetric[];
+  currentStep?: number;
 }
 
 export interface Report {

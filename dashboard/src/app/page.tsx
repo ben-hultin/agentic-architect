@@ -22,12 +22,17 @@ export default function Home() {
 
   const displayJobs = jobs.length > 0 ? jobs : mockJobs;
 
+  const activeBuilds = displayJobs.filter(j => j.status === 'RUNNING').length;
+  const avgSuccessRate = displayJobs.length > 0 ? (displayJobs.reduce((acc, j) => acc + (j.successRate || 0), 0) / displayJobs.length).toFixed(1) : 0;
+  const avgErrorRate = displayJobs.length > 0 ? (displayJobs.reduce((acc, j) => acc + (j.errorRate || 0), 0) / displayJobs.length).toFixed(1) : 0;
+  const totalSpend = displayJobs.reduce((acc, j) => acc + (j.cost || 0), 0);
+
   return (
     <div>
       <div className="flex justify-between items-end mb-8 flex-wrap gap-4">
         <div>
           <h1 className="text-[26px] font-semibold text-text-hi font-heading tracking-tight">Dashboard</h1>
-          <div className="text-[13.5px] text-text-dim mt-1.5">Cross-build KPI overview · 24 builds monitored</div>
+          <div className="text-[13.5px] text-text-dim mt-1.5">Cross-build KPI overview · {displayJobs.length} builds monitored</div>
         </div>
         <div className="flex items-center gap-1.5 bg-surface border border-border text-text-body text-[13px] font-medium py-2 px-3.5 rounded-lg cursor-pointer">
           Last 7 days
@@ -36,10 +41,10 @@ export default function Home() {
       </div>
 
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <KPICard label="Active builds" value="24" delta="3 this week" trend="up" />
-        <KPICard label="Avg task success rate" value="84.6%" delta="2.1 pts" trend="up" />
-        <KPICard label="Avg error rate" value="6.9%" delta="0.8 pts" trend="down" />
-        <KPICard label="Spend, 7d" value="$6,284" delta="12% vs prior" trend="warn" />
+        <KPICard label="Active builds" value={activeBuilds} delta="Live" trend="up" />
+        <KPICard label="Avg task success rate" value={`${avgSuccessRate}%`} delta="Live" trend="up" />
+        <KPICard label="Avg error rate" value={`${avgErrorRate}%`} delta="Live" trend="down" />
+        <KPICard label="Spend, 7d" value={`$${totalSpend.toLocaleString()}`} delta="Live" trend="warn" />
       </section>
 
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
