@@ -38,7 +38,7 @@ Layer 3: The Framework Runner Target (Cloud Run)
 
 - Stateless Workspace Container: Cloud Run spins up the runtime target hosting your sequential code footprint (e.g., CrewAI or native pipeline chains).
 - State Mechanics: In this linear topology, state maps as a rigid sequence of tasks. Each step is treated as a blocking operation. The output of Task[i] is automatically packed, formatted, and injected into the system prompt window of Task[i+1].
-- Data Persistence: Long-term storage of final text outputs and structured metadata artifacts maps cleanly into Cloud Firestore via Firebase Data Connect, guaranteeing highly typed, queryable data formats.
+- Data Persistence: Long-term storage of final text outputs and structured metadata artifacts maps cleanly into Cloud Firestore, guaranteeing highly typed, queryable data formats.
 
 Layer 4: Automated Testing Sandbox & Fault Injection (Isolated Compute)
 
@@ -49,7 +49,38 @@ Layer 5: Aggregation & Performance Layer (BigQuery)
 
 - Telemetry Streaming: Mid-execution runtime parameters are continuously written to BigQuery. The dashboard monitors these metrics to track how the agent's context footprint expands step-by-step.
 
-3. Targeted Benchmarking Matrix for Sequential Topologies
+4. Implementation Reference (Python + CrewAI)
+
+The sequential orchestrator is implemented in Python using the CrewAI framework, located in `orchestrators/sequential/`.
+
+### Directory Structure
+```text
+orchestrators/sequential/
+├── dao/
+│   └── sequential_dao.py      # Firestore persistence for jobs and reports
+├── services/
+│   └── firestore_service.py   # Singleton Firestore client
+├── Dockerfile                 # Container definition for Cloud Run
+├── main.py                    # FastAPI entry point for Cloud Tasks
+├── models.py                  # Pydantic models for config and metrics
+├── orchestrator.py            # Core CrewAI execution logic
+├── telemetry_util.py          # Metric calculation engine
+├── fault_engine_util.py       # Programmatic fault injection
+└── requirements.txt           # Python dependencies (crewai, fastapi, etc.)
+```
+
+### Core Components
+- **Orchestrator**: Uses `crewai.Crew` with `Process.sequential` to execute a linear chain of agents. It wraps the execution to capture per-step telemetry.
+- **Telemetry Engine**: Implements the benchmarking matrix, calculating cascading token velocity and TTFT degradation.
+- **Fault Engine**: Injects simulated failures based on a `fault_profile` (e.g., `Tool_Network_Drop_503`) to measure recovery efficiency.
+- **API Layer**: A FastAPI server that listens for `/run` POST requests from Cloud Tasks to trigger asynchronous benchmarking jobs.
+
+### Deployment Workflow
+1. **Build**: `gcloud builds submit --tag [IMAGE_URL] .`
+2. **Deploy**: `gcloud run deploy [SERVICE_NAME] --image [IMAGE_URL] --region [REGION]`
+3. **Trigger**: Cloud Tasks sends a signed OIDC request to the `/run` endpoint with a `jobId`.
+
+5. Targeted Benchmarking Matrix for Sequential Topologies
    Because sequential workflows pass growing context footprints forward, the benchmarking layer must focus heavily on tracking cascading expenses and context-window degradation:
    ┌────────────────────────────────────────┐
    │ SEQUENTIAL EVALUATION MATRIX │
