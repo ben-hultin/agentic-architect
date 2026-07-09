@@ -5,12 +5,14 @@ from crewai import Agent, Task, Crew, Process
 from models import SequentialJobConfig, StepMetric, SequentialReport, SequentialReportMetrics
 from telemetry_util import TelemetryUtil
 from fault_engine_util import FaultEngine
+from dao.sequential_dao import SequentialDAO
 
 class SequentialOrchestrator:
     def __init__(self, config: SequentialJobConfig):
         self.config = config
         self.fault_engine = FaultEngine(config.fault_profile)
         self.step_metrics: List[StepMetric] = []
+        self.dao = SequentialDAO()
 
     def run(self) -> SequentialReport:
         agents = []
@@ -75,7 +77,7 @@ class SequentialOrchestrator:
                 
                 latency = time.time() - step_start
                 
-                self.step_metrics.append(StepMetric(
+                metric = StepMetric(
                     step_index=i,
                     agent_name=step.agent_name,
                     input_tokens=input_tokens,
@@ -84,7 +86,11 @@ class SequentialOrchestrator:
                     latency=latency,
                     status=status,
                     error=error
-                ))
+                )
+                self.step_metrics.append(metric)
+                
+                # Push live metrics to Firestore
+                self.dao.update_live_metrics(self.config.job_id, metric, i)
                 
                 if status == "FAILED":
                     break # Stop sequential chain on failure

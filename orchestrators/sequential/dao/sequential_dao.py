@@ -1,6 +1,7 @@
 from typing import Optional
-from models import SequentialReport, SequentialJobConfig
+from models import SequentialReport, SequentialJobConfig, StepMetric
 from services.firestore_service import FirestoreService
+from google.cloud import firestore
 
 class SequentialDAO:
     def __init__(self):
@@ -15,6 +16,15 @@ class SequentialDAO:
         update_data = {"status": status, "updatedAt": firestore.SERVER_TIMESTAMP}
         if metrics:
             update_data.update(metrics)
+        doc_ref.update(update_data)
+
+    def update_live_metrics(self, job_id: str, step_metric: StepMetric, current_step: int):
+        doc_ref = self.db.collection("jobs").document(job_id)
+        update_data = {
+            "liveMetrics": firestore.ArrayUnion([step_metric.model_dump() if hasattr(step_metric, 'model_dump') else step_metric.dict()]),
+            "currentStep": current_step,
+            "updatedAt": firestore.SERVER_TIMESTAMP
+        }
         doc_ref.update(update_data)
 
     def get_job_config(self, job_id: str) -> Optional[SequentialJobConfig]:
