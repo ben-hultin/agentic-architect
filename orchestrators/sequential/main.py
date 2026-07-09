@@ -2,9 +2,9 @@ import os
 import uvicorn
 from fastapi import FastAPI, BackgroundTasks, HTTPException
 from pydantic import BaseModel
-from .models import SequentialJobConfig
-from .orchestrator import SequentialOrchestrator
-from .dao.sequential_dao import SequentialDAO
+from models import SequentialJobConfig
+from orchestrator import SequentialOrchestrator
+from dao.sequential_dao import SequentialDAO
 
 app = FastAPI()
 

@@ -1,5 +1,5 @@
 from typing import List
-from .models import StepMetric, SequentialReportMetrics
+from models import StepMetric, SequentialReportMetrics
 
 class TelemetryUtil:
     @staticmethod

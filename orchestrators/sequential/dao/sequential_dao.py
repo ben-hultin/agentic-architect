@@ -1,6 +1,6 @@
 from typing import Optional
-from ..models import SequentialReport, SequentialJobConfig
-from ..services.firestore_service import FirestoreService
+from models import SequentialReport, SequentialJobConfig
+from services.firestore_service import FirestoreService
 
 class SequentialDAO:
     def __init__(self):
