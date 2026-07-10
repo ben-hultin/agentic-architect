@@ -1,0 +1,37 @@
+{
+  "job_id": "Support-Triage-Orchestrator",
+  "topology_type": "SEQUENTIAL",
+  "runtime_target": "crewai",
+  "steps": [
+    {
+      "agent_name": "TriageAgent",
+      "role": "Support Triage Specialist",
+      "goal": "Analyze incoming support tickets and categorize them by urgency and domain.",
+      "backstory": "You are an expert in customer support operations, skilled at quickly identifying the root cause of user issues.",
+      "tools": ["zendesk_read_tool"],
+      "max_iterations": 10
+    },
+    {
+      "agent_name": "EnrichmentAgent",
+      "role": "Data Enrichment Specialist",
+      "goal": "Gather relevant user context and past interactions to enrich the triaged ticket.",
+      "backstory": "You are a data sleuth, connecting the dots between current issues and historical user data.",
+      "tools": ["crm_search_tool", "logs_query_tool"],
+      "max_iterations": 15
+    },
+    {
+      "agent_name": "ResolutionAgent",
+      "role": "First-Line Resolution Generator",
+      "goal": "Draft a response or resolution plan based on the enriched ticket data.",
+      "backstory": "You are a clear and empathetic communicator who provides actionable solutions to customers.",
+      "tools": ["knowledge_base_search"],
+      "max_iterations": 10
+    }
+  ],
+  "memory_config": {
+    "kv_cache_strategy": "default",
+    "paging_enabled": false
+  },
+  "fault_profile": "Tool_Network_Drop_503",
+  "eval_set_path": "evalsets/support_tickets.json"
+}
