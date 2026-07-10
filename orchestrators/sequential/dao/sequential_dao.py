@@ -11,6 +11,14 @@ class SequentialDAO:
         doc_ref = self.db.collection("reports").document(report.id)
         doc_ref.set(report.dict())
 
+    def create_job(self, config: SequentialJobConfig):
+        doc_ref = self.db.collection("jobs").document(config.job_id)
+        job_data = config.model_dump() if hasattr(config, 'model_dump') else config.dict()
+        job_data["status"] = "QUEUED"
+        job_data["createdAt"] = firestore.SERVER_TIMESTAMP
+        job_data["updatedAt"] = firestore.SERVER_TIMESTAMP
+        doc_ref.set(job_data)
+
     def update_job_status(self, job_id: str, status: str, metrics: Optional[dict] = None):
         doc_ref = self.db.collection("jobs").document(job_id)
         update_data = {"status": status, "updatedAt": firestore.SERVER_TIMESTAMP}
