@@ -2,10 +2,11 @@
 
 import { useAuth } from "@/dao/auth/useAuth";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function LoginPage() {
   const { user, loading, loginWithGoogle } = useAuth();
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -13,6 +14,18 @@ export default function LoginPage() {
       router.push("/");
     }
   }, [user, loading, router]);
+
+  const handleLogin = async () => {
+    setError(null);
+    try {
+      await loginWithGoogle();
+    } catch (err: any) {
+      console.error("Login failed:", err);
+      setError(
+        err.message || "Failed to sign in with Google. Please try again.",
+      );
+    }
+  };
 
   if (loading || user) {
     return (
@@ -30,14 +43,22 @@ export default function LoginPage() {
 
       <div className="w-full max-w-md p-10 bg-surface/80 backdrop-blur-xl border border-border rounded-2xl shadow-2xl relative z-10 flex flex-col items-center">
         <div className="w-[48px] h-[48px] rounded-[14px] bg-gradient-to-br from-cyan to-magenta flex-shrink-0 mb-6 shadow-[0_0_20px_rgba(0,240,255,0.3)]" />
-        
-        <h1 className="text-2xl font-semibold text-text-hi mb-2 tracking-tight">Welcome to Agent Ops</h1>
+
+        <h1 className="text-2xl font-semibold text-text-hi mb-2 tracking-tight">
+          Welcome to Agent Ops
+        </h1>
         <p className="text-text-body text-center mb-10 text-sm">
           Sign in to access your dashboard and manage builds.
         </p>
 
+        {error && (
+          <div className="w-full p-3 mb-6 bg-magenta/10 border border-magenta/20 rounded-xl text-magenta text-xs text-center">
+            {error}
+          </div>
+        )}
+
         <button
-          onClick={loginWithGoogle}
+          onClick={handleLogin}
           className="w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-100 text-black font-medium py-3 px-4 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">

@@ -2,7 +2,7 @@ import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { getAnalytics, isSupported } from "firebase/analytics";
+import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -22,4 +22,4 @@ export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 
 // Initialize Analytics conditionally (only works on client side)
-export const analytics = typeof window !== "undefined" ? isSupported().then(yes => yes ? getAnalytics(app) : null) : null;
+export const analytics = typeof window !== "undefined" ? getAnalytics(app) : null;

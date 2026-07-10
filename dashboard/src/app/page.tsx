@@ -23,8 +23,8 @@ export default function Home() {
   const displayJobs = jobs.length > 0 ? jobs : mockJobs;
 
   const activeBuilds = displayJobs.filter(j => j.status === 'RUNNING').length;
-  const avgSuccessRate = displayJobs.length > 0 ? (displayJobs.reduce((acc, j) => acc + (j.successRate || 0), 0) / displayJobs.length).toFixed(1) : 0;
-  const avgErrorRate = displayJobs.length > 0 ? (displayJobs.reduce((acc, j) => acc + (j.errorRate || 0), 0) / displayJobs.length).toFixed(1) : 0;
+  const avgSuccessRate = (displayJobs.length > 0 ? (displayJobs.reduce((acc, j) => acc + (j.successRate || 0), 0) / displayJobs.length) : 0).toFixed(1);
+  const avgErrorRate = (displayJobs.length > 0 ? (displayJobs.reduce((acc, j) => acc + (j.errorRate || 0), 0) / displayJobs.length) : 0).toFixed(1);
   const totalSpend = displayJobs.reduce((acc, j) => acc + (j.cost || 0), 0);
 
   return (

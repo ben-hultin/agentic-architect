@@ -1,9 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Play } from "lucide-react";
-import { useState } from "react";
-import { enqueueBenchmarkingJob } from "@/services/cloudTasks";
+import { ArrowLeft } from "lucide-react";
 
 const MetricCard = ({ title, body, score, progress }: { title: string; body: string; score: string; progress: number }) => (
   <div className="bg-surface-2 border border-border rounded-lg p-4 flex flex-col gap-2">
@@ -176,32 +174,11 @@ const TopologyMetrics = ({ topology_type }: { topology_type: string }) => {
 
 export default function BuildDetailsPage({ params }: Readonly<{ params: { id: string } }>) {
   const buildId = params.id;
-  const [isRunning, setIsRunning] = useState(false);
   
   // Mock determination of topology_type based on buildId
   const isMicrokernel = buildId.includes("Planner");
   const topology_type = isMicrokernel ? "OS_KERNEL" : "SEQUENTIAL";
   const runtime_target = isMicrokernel ? "microkernel-v1-image" : "crewai";
-
-  const handleRunTest = async () => {
-    setIsRunning(true);
-    try {
-      await enqueueBenchmarkingJob({
-        jobId: buildId,
-        topology_type,
-        runtime_target,
-        memory_config: isMicrokernel ? { kv_cache_strategy: "PolyKV_Asymmetric", paging_enabled: true } : undefined,
-        fault_profile: "Tool_Network_Drop_503",
-        evalSetPath: "evalsets/default.json"
-      });
-      alert("Benchmarking job enqueued!");
-    } catch (error) {
-      console.error(error);
-      alert("Failed to enqueue job.");
-    } finally {
-      setIsRunning(false);
-    }
-  };
 
   return (
     <div>
@@ -224,14 +201,6 @@ export default function BuildDetailsPage({ params }: Readonly<{ params: { id: st
           </div>
         </div>
         <div className="flex gap-3">
-          <button 
-            onClick={handleRunTest}
-            disabled={isRunning}
-            className="flex items-center gap-2 bg-gradient-to-r from-cyan to-magenta text-[#08111A] text-[13.5px] font-semibold py-2.5 px-4.5 rounded-lg border-none disabled:opacity-50"
-          >
-            <Play className="w-3.5 h-3.5 fill-current" />
-            {isRunning ? "Running..." : "Run Bench Test"}
-          </button>
           <button className="bg-surface border border-border text-text-body text-[13.5px] font-medium py-2.5 px-4 rounded-lg hover:border-text-dim hover:text-text-hi transition-all">
             Configure Workflow
           </button>
