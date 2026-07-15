@@ -1,0 +1,9 @@
+langgraph
+langchain-core
+pydantic
+google-cloud-firestore
+fastapi
+uvicorn
+python-dotenv
+# langgraph-checkpoint-postgres
+# psycopg

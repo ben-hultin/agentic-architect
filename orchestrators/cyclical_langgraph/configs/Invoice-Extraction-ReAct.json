@@ -1,0 +1,33 @@
+{
+  "job_id": "Invoice-Extraction-ReAct",
+  "topology_type": "STATEFUL",
+  "runtime_target": "langgraph",
+  "task": "Extract invoice details and verify against the database.",
+  "nodes": [
+    {
+      "node_name": "classifier",
+      "role": "Task Classifier",
+      "goal": "Determine if tool execution is needed or if analysis is complete.",
+      "tools": []
+    },
+    {
+      "node_name": "mcp_tool",
+      "role": "Tool Executor",
+      "goal": "Execute the required MCP tools.",
+      "tools": ["invoice_db_lookup", "document_search"]
+    },
+    {
+      "node_name": "analyst",
+      "role": "Data Analyst",
+      "goal": "Analyze the tool outputs and compile the final result.",
+      "tools": []
+    }
+  ],
+  "max_cycles": 5,
+  "memory_config": {
+    "kv_cache_strategy": "default",
+    "paging_enabled": false
+  },
+  "fault_profile": "Tool_Network_Drop_503",
+  "checkpoint_backend": "memory"
+}
